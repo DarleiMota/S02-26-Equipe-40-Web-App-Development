@@ -1,9 +1,8 @@
 package com.nocountry.conversionflow.conversionflow_api.config.properties;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
-
 import java.util.Map;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "stripe")
 public class StripeProperties {
@@ -33,43 +32,6 @@ public class StripeProperties {
         this.secretKey = secretKey;
     }
 
-    public String getWebhookSecret() {
-        return webhookSecret;
-    }
-
-    public void setWebhookSecret(String webhookSecret) {
-        this.webhookSecret = webhookSecret;
-    }
-
-    public String getSuccessUrl() {
-        return successUrl;
-    }
-
-    public void setSuccessUrl(String successUrl) {
-        this.successUrl = successUrl;
-    }
-
-    public String getCancelUrl() {
-        return cancelUrl;
-    }
-
-    public void setCancelUrl(String cancelUrl) {
-        this.cancelUrl = cancelUrl;
-    }
-
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
-    public Map<String, String> getPrices() {
-        return prices;
-    }
-
-    public void setPrices(Map<String, String> prices) {
-        this.prices = prices;
-    }
+    public String getWebhookSecret() { return webhookSecret; }
+    public void setWebhookSecret(String webhookSecret) { this.webhookSecret = webhookSecret; }
 }
