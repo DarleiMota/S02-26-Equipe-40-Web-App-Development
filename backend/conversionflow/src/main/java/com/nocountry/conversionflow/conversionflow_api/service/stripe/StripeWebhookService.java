@@ -1,5 +1,16 @@
 package com.nocountry.conversionflow.conversionflow_api.service.stripe;
 
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.util.Locale;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.nocountry.conversionflow.conversionflow_api.config.properties.StripeProperties;
 import com.nocountry.conversionflow.conversionflow_api.domain.entity.Lead;
 import com.nocountry.conversionflow.conversionflow_api.domain.entity.Payment;
@@ -14,16 +25,6 @@ import com.stripe.model.PaymentIntent;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
 import com.stripe.param.checkout.SessionCreateParams;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.time.OffsetDateTime;
-import java.util.Locale;
-import java.util.Map;
 
 @Service
 public class StripeWebhookService {
@@ -39,8 +40,7 @@ public class StripeWebhookService {
             StripeProperties stripeProperties,
             LeadRepository leadRepository,
             PaymentRepository paymentRepository,
-            ApplicationEventPublisher eventPublisher
-    ) {
+            ApplicationEventPublisher eventPublisher) {
         this.stripeProperties = stripeProperties;
         this.leadRepository = leadRepository;
         this.paymentRepository = paymentRepository;
@@ -58,8 +58,7 @@ public class StripeWebhookService {
             String gclid,
             String fbclid,
             String fbp,
-            String fbc
-    ) throws StripeException {
+            String fbc) throws StripeException {
 
         Lead lead = leadRepository.findById(leadId)
                 .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + leadId));
@@ -82,8 +81,7 @@ public class StripeWebhookService {
                         SessionCreateParams.LineItem.builder()
                                 .setQuantity(1L)
                                 .setPrice(priceId)
-                                .build()
-                )
+                                .build())
                 .build();
 
         Session session = Session.create(params);
@@ -149,7 +147,8 @@ public class StripeWebhookService {
         String stripeSessionId = session.getId();
         String paymentIntentId = session.getPaymentIntent();
 
-        // Idempotência forte: se já processamos este evento ou este paymentIntent, ignora
+        // Idempotência forte: se já processamos este evento ou este paymentIntent,
+        // ignora
         if (stripeEventId != null && paymentRepository.existsByStripeEventId(stripeEventId)) {
             log.info("Webhook already processed (stripeEventId={})", stripeEventId);
             return;
@@ -163,7 +162,8 @@ public class StripeWebhookService {
         PaymentIntent paymentIntent = retrievePaymentIntent(paymentIntentId);
 
         long amountCents = paymentIntent.getAmount() == null ? 0L : paymentIntent.getAmount();
-        String currency = paymentIntent.getCurrency() == null ? stripeProperties.getCurrency() : paymentIntent.getCurrency();
+        String currency = paymentIntent.getCurrency() == null ? stripeProperties.getCurrency()
+                : paymentIntent.getCurrency();
 
         BigDecimal amount = BigDecimal.valueOf(amountCents).divide(BigDecimal.valueOf(100));
 
@@ -206,9 +206,11 @@ public class StripeWebhookService {
     }
 
     private String getMetadata(Session session, String key) {
-        if (session.getMetadata() == null) return null;
+        if (session.getMetadata() == null)
+            return null;
         String value = session.getMetadata().get(key);
-        if (value == null || value.isBlank()) return null;
+        if (value == null || value.isBlank())
+            return null;
         return value;
     }
 
@@ -234,8 +236,7 @@ public class StripeWebhookService {
                 lead.getFbc(),
                 paymentIntentId,
                 lead.getConvertedAmount(),
-                lead.getConvertedAt()
-        );
+                lead.getConvertedAt());
 
         log.info("Publishing LeadConvertedEvent leadId={}, paymentIntentId={}", lead.getId(), paymentIntentId);
         eventPublisher.publishEvent(event);

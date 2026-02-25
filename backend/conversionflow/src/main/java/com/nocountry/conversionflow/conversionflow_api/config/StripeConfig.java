@@ -3,7 +3,11 @@ package com.nocountry.conversionflow.conversionflow_api.config;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import com.nocountry.conversionflow.conversionflow_api.config.properties.StripeProperties;
+import com.stripe.Stripe;
+
 @Configuration
+@EnableConfigurationProperties(StripeProperties.class)
 public class StripeConfig {
 
     /**
